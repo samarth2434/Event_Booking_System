@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import { Calendar, MapPin, Clock, Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, MapPin, Clock, Search, Filter, ChevronLeft, ChevronRight, Plus, User } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const Events = () => {
+  const { user } = useAuth();
   const [events, setEvents] = useState([]);
+  const [myEvents, setMyEvents] = useState([]);
+  const [showMyEvents, setShowMyEvents] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState({
@@ -30,11 +34,7 @@ const Events = () => {
     { value: 'other', label: 'Other' }
   ];
 
-  useEffect(() => {
-    fetchEvents();
-  }, [searchParams]);
-
-  const fetchEvents = async (page = 1) => {
+  const fetchEvents = useCallback(async (page = 1) => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -58,7 +58,45 @@ const Events = () => {
     } finally {
       setLoading(false);
     }
+  }, [filters]);
+
+  const fetchMyEvents = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/api/events/my-events', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setMyEvents(response.data.events);
+    } catch (error) {
+      console.error('Error fetching my events:', error);
+    }
   };
+
+  const handleDeleteEvent = async (eventId) => {
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`/api/events/${eventId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        // Refresh both lists
+        fetchMyEvents();
+        fetchEvents();
+        alert('Event deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting event:', error);
+        alert('Error deleting event. Please try again.');
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+    if (user) {
+      fetchMyEvents();
+    }
+  }, [searchParams, user, fetchEvents]);
 
   const handleFilterChange = (key, value) => {
     const newFilters = { ...filters, [key]: value };
@@ -236,16 +274,38 @@ const Events = () => {
           </div>
         </div>
 
-        {/* Results Summary */}
+        {/* Results Summary and Actions */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: '24px'
         }}>
-          <p style={{ color: '#718096' }}>
-            {loading ? 'Loading...' : `Showing ${events.length} of ${pagination.total} events`}
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <p style={{ color: '#718096' }}>
+              {loading ? 'Loading...' : `Showing ${events.length} of ${pagination.total} events`}
+            </p>
+            
+            {user && (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => setShowMyEvents(!showMyEvents)}
+                  className={`btn ${showMyEvents ? 'btn-primary' : 'btn-secondary'}`}
+                  style={{ fontSize: '14px' }}
+                >
+                  <User size={16} />
+                  {showMyEvents ? 'All Events' : 'My Events'} ({myEvents.length})
+                </button>
+              </div>
+            )}
+          </div>
+          
+          {user && (
+            <Link to="/create-event" className="btn btn-primary">
+              <Plus size={18} />
+              Add New Event
+            </Link>
+          )}
         </div>
 
         {/* Events Grid */}
@@ -263,10 +323,10 @@ const Events = () => {
               borderTop: '4px solid #667eea'
             }}></div>
           </div>
-        ) : events.length > 0 ? (
+        ) : (showMyEvents ? myEvents : events).length > 0 ? (
           <>
             <div className="grid grid-cols-3" style={{ gap: '24px', marginBottom: '40px' }}>
-              {events.map((event) => (
+              {(showMyEvents ? myEvents : events).map((event) => (
                 <div key={event._id} className="card" style={{
                   opacity: isEventPast(event.date) ? 0.7 : 1
                 }}>
@@ -291,6 +351,22 @@ const Events = () => {
                         fontWeight: '500'
                       }}>
                         Past Event
+                      </div>
+                    )}
+                    
+                    {showMyEvents && user && event.organizer._id === user.id && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '12px',
+                        left: '12px',
+                        background: 'rgba(0, 0, 0, 0.7)',
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}>
+                        Your Event
                       </div>
                     )}
                   </div>
@@ -380,26 +456,44 @@ const Events = () => {
                           onwards
                         </span>
                       </div>
-                      <Link 
-                        to={`/events/${event._id}`}
-                        className="btn btn-primary"
-                        style={{ 
-                          padding: '8px 16px', 
-                          fontSize: '14px',
-                          opacity: isEventPast(event.date) ? 0.6 : 1,
-                          pointerEvents: isEventPast(event.date) ? 'none' : 'auto'
-                        }}
-                      >
-                        {isEventPast(event.date) ? 'Event Ended' : 'View Details'}
-                      </Link>
+                      
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <Link 
+                          to={`/events/${event._id}`}
+                          className="btn btn-primary"
+                          style={{ 
+                            padding: '8px 16px', 
+                            fontSize: '14px',
+                            opacity: isEventPast(event.date) ? 0.6 : 1,
+                            pointerEvents: isEventPast(event.date) ? 'none' : 'auto'
+                          }}
+                        >
+                          {isEventPast(event.date) ? 'Event Ended' : 'View Details'}
+                        </Link>
+                        
+                        {showMyEvents && user && event.organizer._id === user.id && (
+                          <button
+                            onClick={() => handleDeleteEvent(event._id)}
+                            className="btn btn-danger"
+                            style={{ 
+                              padding: '8px 12px', 
+                              fontSize: '14px',
+                              background: '#e53e3e',
+                              borderColor: '#e53e3e'
+                            }}
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
+            {/* Pagination - only show for all events, not my events */}
+            {!showMyEvents && pagination.totalPages > 1 && (
               <div style={{
                 display: 'flex',
                 justifyContent: 'center',
@@ -444,19 +538,31 @@ const Events = () => {
             color: '#718096'
           }}>
             <Calendar size={64} style={{ margin: '0 auto 24px', opacity: 0.5 }} />
-            <h3 style={{ marginBottom: '8px', fontSize: '1.5rem' }}>No Events Found</h3>
+            <h3 style={{ marginBottom: '8px', fontSize: '1.5rem' }}>
+              {showMyEvents ? 'No Events Created Yet' : 'No Events Found'}
+            </h3>
             <p style={{ marginBottom: '24px' }}>
-              Try adjusting your search criteria or check back later for new events.
+              {showMyEvents 
+                ? 'You haven\'t created any events yet. Click "Add New Event" to get started!'
+                : 'Try adjusting your search criteria or check back later for new events.'
+              }
             </p>
-            <button
-              onClick={() => {
-                setFilters({ search: '', category: '', city: '', date: '' });
-                setSearchParams({});
-              }}
-              className="btn btn-primary"
-            >
-              Clear Filters
-            </button>
+            {showMyEvents ? (
+              <Link to="/create-event" className="btn btn-primary">
+                <Plus size={18} />
+                Create Your First Event
+              </Link>
+            ) : (
+              <button
+                onClick={() => {
+                  setFilters({ search: '', category: '', city: '', date: '' });
+                  setSearchParams({});
+                }}
+                className="btn btn-primary"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         )}
       </div>

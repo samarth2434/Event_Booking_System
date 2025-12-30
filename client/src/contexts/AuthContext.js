@@ -57,24 +57,30 @@ export const AuthProvider = ({ children }) => {
   const setAuthToken = (token) => {
     if (token) {
       axios.defaults.headers.common['x-auth-token'] = token;
+      localStorage.setItem('token', token);
     } else {
       delete axios.defaults.headers.common['x-auth-token'];
+      localStorage.removeItem('token');
     }
   };
 
   // Load user
   const loadUser = async () => {
-    if (localStorage.token) {
-      setAuthToken(localStorage.token);
-    }
-
-    try {
-      const res = await axios.get('/api/auth/me');
-      dispatch({
-        type: 'USER_LOADED',
-        payload: res.data
-      });
-    } catch (err) {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setAuthToken(token);
+      
+      try {
+        const res = await axios.get('/api/auth/me');
+        dispatch({
+          type: 'USER_LOADED',
+          payload: res.data
+        });
+      } catch (err) {
+        console.error('Error loading user:', err);
+        dispatch({ type: 'AUTH_ERROR' });
+      }
+    } else {
       dispatch({ type: 'AUTH_ERROR' });
     }
   };
@@ -102,23 +108,30 @@ export const AuthProvider = ({ children }) => {
   const login = async (formData) => {
     try {
       const res = await axios.post('/api/auth/login', formData);
+      
+      // Set token and update state
+      setAuthToken(res.data.token);
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: res.data
       });
-      loadUser();
+      
+      // Load user data
+      await loadUser();
       return { success: true };
     } catch (err) {
+      console.error('Login error:', err);
       dispatch({
         type: 'LOGIN_FAIL',
-        payload: err.response.data.message
+        payload: err.response?.data?.message || 'Login failed'
       });
-      return { success: false, error: err.response.data.message };
+      return { success: false, error: err.response?.data?.message || 'Login failed' };
     }
   };
 
   // Logout
   const logout = () => {
+    setAuthToken(null);
     dispatch({ type: 'LOGOUT' });
   };
 

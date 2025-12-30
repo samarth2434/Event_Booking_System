@@ -18,7 +18,8 @@ import AdminDashboard from './pages/Admin/Dashboard';
 import AdminEvents from './pages/Admin/Events';
 import AdminBookings from './pages/Admin/Bookings';
 import AdminUsers from './pages/Admin/Users';
-import CreateEvent from './pages/Admin/CreateEvent';
+import CreateEvent from './pages/CreateEvent';
+import AdminCreateEvent from './pages/Admin/CreateEvent';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import AdminRoute from './components/Auth/AdminRoute';
 
@@ -38,6 +39,11 @@ function App() {
               <Route path="/register" element={<Register />} />
               
               {/* Protected Routes */}
+              <Route path="/create-event" element={
+                <ProtectedRoute>
+                  <CreateEvent />
+                </ProtectedRoute>
+              } />
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />
@@ -67,7 +73,7 @@ function App() {
               } />
               <Route path="/admin/events/create" element={
                 <AdminRoute>
-                  <CreateEvent />
+                  <AdminCreateEvent />
                 </AdminRoute>
               } />
               <Route path="/admin/bookings" element={

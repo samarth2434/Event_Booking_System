@@ -101,6 +101,33 @@ router.get('/featured', async (req, res) => {
   }
 });
 
+// Get user's own events
+router.get('/my-events', auth, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
+    
+    const events = await Event.find({ organizer: req.user.id })
+      .populate('organizer', 'name email')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+    
+    const total = await Event.countDocuments({ organizer: req.user.id });
+    
+    res.json({
+      events,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      total
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+});
+
 // Get single event
 router.get('/:id', async (req, res) => {
   try {
@@ -121,8 +148,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create event (Admin only)
-router.post('/', [auth, admin, upload.array('images', 5)], async (req, res) => {
+// Create event (Any authenticated user)
+router.post('/', [auth, upload.array('images', 5)], async (req, res) => {
   try {
     const eventData = req.body;
     eventData.organizer = req.user.id;
@@ -163,6 +190,85 @@ router.post('/', [auth, admin, upload.array('images', 5)], async (req, res) => {
   } catch (error) {
     console.error('Error creating event:', error);
     res.status(500).json({ message: error.message || 'Server error' });
+  }
+});
+
+// Update event (Only event creator or admin)
+router.put('/:id', [auth, upload.array('images', 5)], async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+    
+    // Check if user is the event creator or admin
+    if (event.organizer.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. You can only edit your own events.' });
+    }
+    
+    const eventData = req.body;
+    
+    // Handle image uploads
+    if (req.files && req.files.length > 0) {
+      eventData.images = req.files.map(file => `/uploads/events/${file.filename}`);
+    }
+    
+    // Convert pricing to numbers if provided
+    if (eventData.pricing) {
+      eventData.pricing = {
+        general: parseFloat(eventData.pricing.general),
+        vip: eventData.pricing.vip ? parseFloat(eventData.pricing.vip) : event.pricing.vip,
+        premium: eventData.pricing.premium ? parseFloat(eventData.pricing.premium) : event.pricing.premium
+      };
+    }
+
+    // Convert venue capacity to number if provided
+    if (eventData.venue && eventData.venue.capacity) {
+      eventData.venue.capacity = parseInt(eventData.venue.capacity);
+    }
+
+    // Process tags if provided
+    if (eventData.tags && typeof eventData.tags === 'string') {
+      eventData.tags = eventData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    }
+
+    const updatedEvent = await Event.findByIdAndUpdate(
+      req.params.id,
+      eventData,
+      { new: true, runValidators: true }
+    ).populate('organizer', 'name email');
+    
+    res.json(updatedEvent);
+  } catch (error) {
+    console.error('Error updating event:', error);
+    res.status(500).json({ message: error.message || 'Server error' });
+  }
+});
+
+// Delete event (Only event creator or admin)
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+    
+    // Check if user is the event creator or admin
+    if (event.organizer.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. You can only delete your own events.' });
+    }
+    
+    await Event.findByIdAndDelete(req.params.id);
+    
+    res.json({ message: 'Event deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    if (error.kind === 'ObjectId') {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+    res.status(500).send('Server error');
   }
 });
 

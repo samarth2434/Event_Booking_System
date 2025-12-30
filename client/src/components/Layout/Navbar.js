@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Calendar, User, LogOut, Menu, X, Settings, Sparkles } from 'lucide-react';
+import { Calendar, User, LogOut, Menu, X, Settings, Sparkles, Plus } from 'lucide-react';
 
 const Navbar = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, loading } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Debug logging
+  console.log('Navbar - Auth State:', { user, isAuthenticated, loading });
 
   const handleLogout = () => {
     logout();
@@ -99,8 +102,39 @@ const Navbar = () => {
               Browse Events
             </Link>
 
-            {isAuthenticated ? (
+            {loading ? (
+              <div style={{ color: 'white' }}>Loading...</div>
+            ) : isAuthenticated ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+                <Link 
+                  to="/create-event" 
+                  style={{
+                    color: 'white',
+                    textDecoration: 'none',
+                    fontWeight: '600',
+                    fontSize: '16px',
+                    transition: 'all 0.3s ease',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    background: 'rgba(34, 197, 94, 0.2)',
+                    border: '1px solid rgba(34, 197, 94, 0.3)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = 'rgba(34, 197, 94, 0.3)';
+                    e.target.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'rgba(34, 197, 94, 0.2)';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <Plus size={16} />
+                  Add Event
+                </Link>
+                
                 <Link 
                   to="/bookings" 
                   style={{
@@ -125,35 +159,33 @@ const Navbar = () => {
                 </Link>
 
                 {user?.role === 'admin' && (
-                  <>
-                    <Link 
-                      to="/admin" 
-                      style={{
-                        color: 'white',
-                        textDecoration: 'none',
-                        fontWeight: '600',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        transition: 'all 0.3s ease',
-                        padding: '8px 16px',
-                        borderRadius: '8px',
-                        background: 'rgba(255, 215, 0, 0.2)',
-                        border: '1px solid rgba(255, 215, 0, 0.3)'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.background = 'rgba(255, 215, 0, 0.3)';
-                        e.target.style.transform = 'translateY(-2px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.background = 'rgba(255, 215, 0, 0.2)';
-                        e.target.style.transform = 'translateY(0)';
-                      }}
-                    >
-                      <Sparkles size={18} />
-                      Admin Panel
-                    </Link>
-                  </>
+                  <Link 
+                    to="/admin" 
+                    style={{
+                      color: 'white',
+                      textDecoration: 'none',
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.3s ease',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      background: 'rgba(255, 215, 0, 0.2)',
+                      border: '1px solid rgba(255, 215, 0, 0.3)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.background = 'rgba(255, 215, 0, 0.3)';
+                      e.target.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.background = 'rgba(255, 215, 0, 0.2)';
+                      e.target.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <Sparkles size={18} />
+                    Admin Panel
+                  </Link>
                 )}
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -317,8 +349,30 @@ const Navbar = () => {
                 Browse Events
               </Link>
 
-              {isAuthenticated ? (
+              {loading ? (
+                <div style={{ color: 'white', padding: '12px 16px' }}>Loading...</div>
+              ) : isAuthenticated ? (
                 <>
+                  <Link 
+                    to="/create-event" 
+                    onClick={() => setIsMenuOpen(false)}
+                    style={{
+                      color: 'white',
+                      textDecoration: 'none',
+                      fontWeight: '600',
+                      padding: '12px 16px',
+                      borderRadius: '8px',
+                      background: 'rgba(34, 197, 94, 0.2)',
+                      border: '1px solid rgba(34, 197, 94, 0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <Plus size={16} />
+                    Add Event
+                  </Link>
+                  
                   <Link 
                     to="/bookings" 
                     onClick={() => setIsMenuOpen(false)}
