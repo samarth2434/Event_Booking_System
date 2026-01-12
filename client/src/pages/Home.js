@@ -309,14 +309,14 @@ const Home = () => {
                 marginBottom: '20px',
                 color: '#2d3748'
               }}>
-                Smart Discovery
+                Event Discovery
               </h3>
               <p style={{ 
                 color: '#718096', 
                 lineHeight: '1.7',
                 fontSize: '16px'
               }}>
-                AI-powered recommendations help you discover events perfectly matched to your interests and location.
+                Browse and discover amazing events by category, location, and date with our intuitive search and filtering system.
               </p>
             </div>
 
@@ -341,14 +341,14 @@ const Home = () => {
                 marginBottom: '20px',
                 color: '#2d3748'
               }}>
-                Secure Payments
+                Easy Booking
               </h3>
               <p style={{ 
                 color: '#718096', 
                 lineHeight: '1.7',
                 fontSize: '16px'
               }}>
-                Bank-level security with encrypted transactions and fraud protection for worry-free bookings.
+                Simple and secure ticket booking process with instant confirmations and digital ticket delivery.
               </p>
             </div>
 
@@ -373,14 +373,14 @@ const Home = () => {
                 marginBottom: '20px',
                 color: '#2d3748'
               }}>
-                Premium Experience
+                Event Management
               </h3>
               <p style={{ 
                 color: '#718096', 
                 lineHeight: '1.7',
                 fontSize: '16px'
               }}>
-                Digital tickets, instant confirmations, and 24/7 support for an unmatched booking experience.
+                Create and manage your own events with our comprehensive event management tools and user-friendly interface.
               </p>
             </div>
           </div>

@@ -14,8 +14,11 @@ router.post('/register', [
   body('phone').notEmpty().withMessage('Phone number is required')
 ], async (req, res) => {
   try {
+    console.log('Registration attempt:', { email: req.body.email, name: req.body.name });
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -24,6 +27,7 @@ router.post('/register', [
     // Check if user already exists
     let user = await User.findOne({ email });
     if (user) {
+      console.log('User already exists:', email);
       return res.status(400).json({ message: 'User already exists' });
     }
 
@@ -36,6 +40,7 @@ router.post('/register', [
     });
 
     await user.save();
+    console.log('New user created successfully:', { id: user.id, email: user.email, name: user.name });
 
     // Create JWT token
     const payload = {

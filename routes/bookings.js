@@ -46,6 +46,8 @@ router.get('/:id', auth, async (req, res) => {
 // Create booking
 router.post('/', auth, async (req, res) => {
   try {
+    console.log('Creating booking with data:', req.body);
+    
     const { eventId, tickets, attendeeInfo } = req.body;
     
     // Get event details
@@ -90,6 +92,13 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ message: 'At least one ticket must be selected' });
     }
     
+    // Generate unique booking reference
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substr(2, 5).toUpperCase();
+    const bookingReference = `BK${timestamp}${randomStr}`;
+    
+    console.log('Generated booking reference:', bookingReference);
+    
     // Create booking
     const booking = new Booking({
       user: req.user.id,
@@ -97,10 +106,24 @@ router.post('/', auth, async (req, res) => {
       tickets: bookingTickets,
       totalAmount,
       attendeeInfo,
-      paymentStatus: 'pending'
+      paymentStatus: 'pending',
+      bookingReference
     });
     
+    console.log('Booking object before save:', {
+      user: req.user.id,
+      event: eventId,
+      tickets: bookingTickets,
+      totalAmount,
+      attendeeInfo,
+      bookingReference
+    });
+    
+    console.log('Booking created successfully:', booking.bookingReference);
+    
     await booking.save();
+    
+    console.log('Booking saved with reference:', booking.bookingReference);
     
     // Update event ticket availability
     Object.keys(bookingTickets).forEach(type => {
@@ -121,7 +144,17 @@ router.post('/', auth, async (req, res) => {
     
     res.status(201).json(booking);
   } catch (error) {
-    console.error(error.message);
+    console.error('Booking creation error:', error);
+    
+    // Handle validation errors specifically
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ 
+        message: 'Validation failed', 
+        errors: validationErrors 
+      });
+    }
+    
     res.status(500).json({ message: error.message || 'Server error' });
   }
 });

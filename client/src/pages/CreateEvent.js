@@ -87,24 +87,45 @@ const CreateEvent = () => {
       const token = localStorage.getItem('token');
       const submitData = new FormData();
 
-      // Add all form fields
-      Object.keys(formData).forEach(key => {
-        if (key === 'venue' || key === 'pricing' || key === 'availableTickets') {
-          Object.keys(formData[key]).forEach(subKey => {
-            submitData.append(`${key}.${subKey}`, formData[key][subKey]);
-          });
-        } else if (key === 'images') {
-          formData.images.forEach(image => {
-            submitData.append('images', image);
-          });
-        } else {
-          submitData.append(key, formData[key]);
-        }
+      // Add basic fields
+      submitData.append('title', formData.title);
+      submitData.append('description', formData.description);
+      submitData.append('category', formData.category);
+      submitData.append('date', formData.date);
+      submitData.append('startTime', formData.startTime);
+      submitData.append('endTime', formData.endTime);
+      submitData.append('tags', formData.tags);
+
+      // Add venue data
+      submitData.append('venue[name]', formData.venue.name);
+      submitData.append('venue[address]', formData.venue.address);
+      submitData.append('venue[city]', formData.venue.city);
+      submitData.append('venue[capacity]', formData.venue.capacity);
+
+      // Add pricing data
+      submitData.append('pricing[general]', formData.pricing.general);
+      if (formData.pricing.vip) submitData.append('pricing[vip]', formData.pricing.vip);
+      if (formData.pricing.premium) submitData.append('pricing[premium]', formData.pricing.premium);
+
+      // Add available tickets data
+      if (formData.availableTickets.general) {
+        submitData.append('availableTickets[general]', formData.availableTickets.general);
+      }
+      if (formData.availableTickets.vip) {
+        submitData.append('availableTickets[vip]', formData.availableTickets.vip);
+      }
+      if (formData.availableTickets.premium) {
+        submitData.append('availableTickets[premium]', formData.availableTickets.premium);
+      }
+
+      // Add images
+      formData.images.forEach(image => {
+        submitData.append('images', image);
       });
 
       const response = await axios.post('/api/events', submitData, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'x-auth-token': token,
           'Content-Type': 'multipart/form-data'
         }
       });

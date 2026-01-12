@@ -71,7 +71,10 @@ const bookingSchema = new mongoose.Schema({
 // Generate booking reference before saving
 bookingSchema.pre('save', function(next) {
   if (!this.bookingReference) {
-    this.bookingReference = 'BK' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
+    // Generate a unique booking reference
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substr(2, 5).toUpperCase();
+    this.bookingReference = `BK${timestamp}${randomStr}`;
   }
   next();
 });

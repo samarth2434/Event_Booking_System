@@ -151,35 +151,45 @@ router.get('/:id', async (req, res) => {
 // Create event (Any authenticated user)
 router.post('/', [auth, upload.array('images', 5)], async (req, res) => {
   try {
-    const eventData = req.body;
-    eventData.organizer = req.user.id;
+    console.log('Received form data:', req.body);
+    
+    const eventData = {
+      title: req.body.title,
+      description: req.body.description,
+      category: req.body.category,
+      date: req.body.date,
+      startTime: req.body.startTime,
+      endTime: req.body.endTime,
+      organizer: req.user.id,
+      venue: {
+        name: req.body['venue[name]'] || req.body.venue?.name,
+        address: req.body['venue[address]'] || req.body.venue?.address,
+        city: req.body['venue[city]'] || req.body.venue?.city,
+        capacity: parseInt(req.body['venue[capacity]'] || req.body.venue?.capacity)
+      },
+      pricing: {
+        general: parseFloat(req.body['pricing[general]'] || req.body.pricing?.general),
+        vip: req.body['pricing[vip]'] || req.body.pricing?.vip ? parseFloat(req.body['pricing[vip]'] || req.body.pricing?.vip) : 0,
+        premium: req.body['pricing[premium]'] || req.body.pricing?.premium ? parseFloat(req.body['pricing[premium]'] || req.body.pricing?.premium) : 0
+      },
+      availableTickets: {
+        general: parseInt(req.body['availableTickets[general]'] || req.body.availableTickets?.general) || parseInt(req.body['venue[capacity]'] || req.body.venue?.capacity),
+        vip: req.body['availableTickets[vip]'] || req.body.availableTickets?.vip ? parseInt(req.body['availableTickets[vip]'] || req.body.availableTickets?.vip) : 0,
+        premium: req.body['availableTickets[premium]'] || req.body.availableTickets?.premium ? parseInt(req.body['availableTickets[premium]'] || req.body.availableTickets?.premium) : 0
+      }
+    };
     
     // Handle image uploads
     if (req.files && req.files.length > 0) {
       eventData.images = req.files.map(file => `/uploads/events/${file.filename}`);
     }
-    
-    // Set available tickets equal to venue capacity initially
-    eventData.availableTickets = {
-      general: parseInt(eventData.availableTickets.general) || parseInt(eventData.venue.capacity),
-      vip: eventData.availableTickets?.vip ? parseInt(eventData.availableTickets.vip) : 0,
-      premium: eventData.availableTickets?.premium ? parseInt(eventData.availableTickets.premium) : 0
-    };
-
-    // Convert pricing to numbers
-    eventData.pricing = {
-      general: parseFloat(eventData.pricing.general),
-      vip: eventData.pricing.vip ? parseFloat(eventData.pricing.vip) : 0,
-      premium: eventData.pricing.premium ? parseFloat(eventData.pricing.premium) : 0
-    };
-
-    // Convert venue capacity to number
-    eventData.venue.capacity = parseInt(eventData.venue.capacity);
 
     // Process tags
-    if (eventData.tags && typeof eventData.tags === 'string') {
-      eventData.tags = eventData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    if (req.body.tags && typeof req.body.tags === 'string') {
+      eventData.tags = req.body.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
     }
+
+    console.log('Processed event data:', JSON.stringify(eventData, null, 2));
 
     const event = new Event(eventData);
     await event.save();

@@ -3,18 +3,37 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { Calendar, MapPin, Clock, Users, Ticket, ArrowLeft } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Ticket, ArrowLeft, Plus, Minus, X } from 'lucide-react';
 
 const EventDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [selectedTickets, setSelectedTickets] = useState({
+    general: 0,
+    vip: 0,
+    premium: 0
+  });
+  const [attendeeInfo, setAttendeeInfo] = useState({
+    name: '',
+    email: '',
+    phone: ''
+  });
 
   useEffect(() => {
     fetchEvent();
-  }, [id]);
+    if (user) {
+      setAttendeeInfo({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || ''
+      });
+    }
+  }, [id, user]);
 
   const fetchEvent = async () => {
     try {
@@ -40,6 +59,65 @@ const EventDetails = () => {
 
   const isEventPast = () => {
     return event && new Date(event.date) < new Date();
+  };
+
+  const updateTicketQuantity = (type, change) => {
+    setSelectedTickets(prev => {
+      const newQuantity = Math.max(0, Math.min(prev[type] + change, event.availableTickets[type]));
+      return { ...prev, [type]: newQuantity };
+    });
+  };
+
+  const getTotalTickets = () => {
+    return Object.values(selectedTickets).reduce((sum, qty) => sum + qty, 0);
+  };
+
+  const getTotalAmount = () => {
+    return Object.keys(selectedTickets).reduce((total, type) => {
+      return total + (selectedTickets[type] * (event?.pricing[type] || 0));
+    }, 0);
+  };
+
+  const handleBookingSubmit = async (e) => {
+    e.preventDefault();
+    setBookingLoading(true);
+
+    try {
+      const totalTickets = getTotalTickets();
+      if (totalTickets === 0) {
+        toast.error('Please select at least one ticket');
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      const bookingData = {
+        eventId: event._id,
+        tickets: selectedTickets,
+        attendeeInfo
+      };
+
+      const response = await axios.post('/api/bookings', bookingData, {
+        headers: { 'x-auth-token': token }
+      });
+
+      toast.success('Booking created successfully!');
+      setShowBookingModal(false);
+      navigate(`/bookings/${response.data._id}`);
+    } catch (error) {
+      console.error('Booking error:', error);
+      toast.error(error.response?.data?.message || 'Error creating booking');
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
+  const openBookingModal = () => {
+    if (!isAuthenticated) {
+      toast.error('Please login to book tickets');
+      navigate('/login');
+      return;
+    }
+    setShowBookingModal(true);
   };
 
   if (loading) {
@@ -279,14 +357,7 @@ const EventDetails = () => {
 
                     {/* Book Button */}
                     <button
-                      onClick={() => {
-                        if (!isAuthenticated) {
-                          toast.error('Please login to book tickets');
-                          navigate('/login');
-                        } else {
-                          toast.info('Booking functionality will be implemented');
-                        }
-                      }}
+                      onClick={openBookingModal}
                       className="btn btn-primary"
                       style={{ width: '100%' }}
                     >
@@ -299,6 +370,269 @@ const EventDetails = () => {
             </div>
           </div>
         </div>
+
+        {/* Booking Modal */}
+        {showBookingModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}>
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              maxWidth: '600px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflow: 'auto'
+            }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '24px',
+                borderBottom: '1px solid #e2e8f0'
+              }}>
+                <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '600' }}>
+                  Book Tickets - {event.title}
+                </h2>
+                <button
+                  onClick={() => setShowBookingModal(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '8px',
+                    borderRadius: '4px'
+                  }}
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <form onSubmit={handleBookingSubmit} style={{ padding: '24px' }}>
+                {/* Ticket Selection */}
+                <div style={{ marginBottom: '32px' }}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '16px' }}>
+                    Select Tickets
+                  </h3>
+                  
+                  {Object.keys(event.pricing).map(type => {
+                    if (event.pricing[type] > 0) {
+                      return (
+                        <div key={type} style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '16px',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          marginBottom: '12px'
+                        }}>
+                          <div>
+                            <div style={{
+                              fontSize: '16px',
+                              fontWeight: '500',
+                              textTransform: 'capitalize',
+                              marginBottom: '4px'
+                            }}>
+                              {type} Ticket
+                            </div>
+                            <div style={{ fontSize: '14px', color: '#718096' }}>
+                              ${event.pricing[type]} • {event.availableTickets[type]} available
+                            </div>
+                          </div>
+                          
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <button
+                              type="button"
+                              onClick={() => updateTicketQuantity(type, -1)}
+                              disabled={selectedTickets[type] === 0}
+                              style={{
+                                width: '32px',
+                                height: '32px',
+                                border: '1px solid #e2e8f0',
+                                background: selectedTickets[type] === 0 ? '#f8fafc' : 'white',
+                                borderRadius: '4px',
+                                cursor: selectedTickets[type] === 0 ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                            >
+                              <Minus size={16} />
+                            </button>
+                            
+                            <span style={{
+                              minWidth: '24px',
+                              textAlign: 'center',
+                              fontSize: '16px',
+                              fontWeight: '500'
+                            }}>
+                              {selectedTickets[type]}
+                            </span>
+                            
+                            <button
+                              type="button"
+                              onClick={() => updateTicketQuantity(type, 1)}
+                              disabled={selectedTickets[type] >= event.availableTickets[type]}
+                              style={{
+                                width: '32px',
+                                height: '32px',
+                                border: '1px solid #e2e8f0',
+                                background: selectedTickets[type] >= event.availableTickets[type] ? '#f8fafc' : 'white',
+                                borderRadius: '4px',
+                                cursor: selectedTickets[type] >= event.availableTickets[type] ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                            >
+                              <Plus size={16} />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+
+                {/* Attendee Information */}
+                <div style={{ marginBottom: '32px' }}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '16px' }}>
+                    Attendee Information
+                  </h3>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div className="form-group">
+                      <label className="form-label">Full Name *</label>
+                      <input
+                        type="text"
+                        value={attendeeInfo.name}
+                        onChange={(e) => setAttendeeInfo(prev => ({ ...prev, name: e.target.value }))}
+                        className="form-input"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="form-group">
+                      <label className="form-label">Phone Number *</label>
+                      <input
+                        type="tel"
+                        value={attendeeInfo.phone}
+                        onChange={(e) => setAttendeeInfo(prev => ({ ...prev, phone: e.target.value }))}
+                        className="form-input"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label className="form-label">Email Address *</label>
+                    <input
+                      type="email"
+                      value={attendeeInfo.email}
+                      onChange={(e) => setAttendeeInfo(prev => ({ ...prev, email: e.target.value }))}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Booking Summary */}
+                {getTotalTickets() > 0 && (
+                  <div style={{
+                    background: '#f8fafc',
+                    padding: '20px',
+                    borderRadius: '8px',
+                    marginBottom: '24px'
+                  }}>
+                    <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '12px' }}>
+                      Booking Summary
+                    </h3>
+                    
+                    {Object.keys(selectedTickets).map(type => {
+                      if (selectedTickets[type] > 0) {
+                        return (
+                          <div key={type} style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            marginBottom: '8px'
+                          }}>
+                            <span style={{ textTransform: 'capitalize' }}>
+                              {selectedTickets[type]} x {type} Ticket
+                            </span>
+                            <span>${(selectedTickets[type] * event.pricing[type]).toFixed(2)}</span>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })}
+                    
+                    <div style={{
+                      borderTop: '1px solid #e2e8f0',
+                      paddingTop: '12px',
+                      marginTop: '12px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: '18px',
+                      fontWeight: '600'
+                    }}>
+                      <span>Total Amount</span>
+                      <span>${getTotalAmount().toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowBookingModal(false)}
+                    className="btn btn-secondary"
+                    style={{ flex: 1 }}
+                  >
+                    Cancel
+                  </button>
+                  
+                  <button
+                    type="submit"
+                    disabled={bookingLoading || getTotalTickets() === 0}
+                    className="btn btn-primary"
+                    style={{ flex: 2 }}
+                  >
+                    {bookingLoading ? (
+                      <>
+                        <div className="spinner" style={{
+                          width: '16px',
+                          height: '16px',
+                          border: '2px solid transparent',
+                          borderTop: '2px solid white',
+                          marginRight: '8px'
+                        }}></div>
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Ticket size={18} />
+                        Confirm Booking (${getTotalAmount().toFixed(2)})
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

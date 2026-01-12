@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Mail, Phone, MapPin } from 'lucide-react';
+import { Calendar, Mail, Phone } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -40,15 +40,11 @@ const Footer = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Mail size={16} />
-                <span style={{ color: '#cbd5e0' }}>support@eventhub.com</span>
+                <span style={{ color: '#cbd5e0' }}>gsamarth2004@gmail.com</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Phone size={16} />
-                <span style={{ color: '#cbd5e0' }}>+1 (555) 123-4567</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <MapPin size={16} />
-                <span style={{ color: '#cbd5e0' }}>New York, NY</span>
+                <span style={{ color: '#cbd5e0' }}>+91 9098860093</span>
               </div>
             </div>
           </div>

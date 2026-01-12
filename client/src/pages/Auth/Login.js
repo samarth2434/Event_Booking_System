@@ -213,7 +213,7 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Enhanced Demo Credentials */}
+          {/* Demo Credentials & New User Info */}
           <div className="card" style={{ 
             marginTop: '32px',
             background: 'rgba(255, 255, 255, 0.9)',
@@ -241,9 +241,24 @@ const Login = () => {
                 }}>
                   <span style={{ color: 'white', fontSize: '12px', fontWeight: 'bold' }}>✓</span>
                 </div>
-                Demo Credentials
+                Quick Access
               </h3>
+              
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{
+                  padding: '12px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  borderRadius: '8px',
+                  color: 'white',
+                  textAlign: 'center',
+                  marginBottom: '12px'
+                }}>
+                  <strong>New User?</strong> Click "Create Account" above to register instantly!
+                </div>
+              </div>
+              
               <div style={{ fontSize: '14px', color: '#718096' }}>
+                <p style={{ marginBottom: '12px', fontWeight: '500' }}>Or try demo accounts:</p>
                 <div style={{ 
                   marginBottom: '12px',
                   padding: '12px',
