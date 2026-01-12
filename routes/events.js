@@ -101,33 +101,6 @@ router.get('/featured', async (req, res) => {
   }
 });
 
-// Get user's own events
-router.get('/my-events', auth, async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
-    const skip = (page - 1) * limit;
-    
-    const events = await Event.find({ organizer: req.user.id })
-      .populate('organizer', 'name email')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-    
-    const total = await Event.countDocuments({ organizer: req.user.id });
-    
-    res.json({
-      events,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      total
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Server error');
-  }
-});
-
 // Get single event
 router.get('/:id', async (req, res) => {
   try {
@@ -148,8 +121,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create event (Any authenticated user)
-router.post('/', [auth, upload.array('images', 5)], async (req, res) => {
+// Create event (Admin only)
+router.post('/', [auth, admin, upload.array('images', 5)], async (req, res) => {
   try {
     console.log('Received form data:', req.body);
     
@@ -203,18 +176,13 @@ router.post('/', [auth, upload.array('images', 5)], async (req, res) => {
   }
 });
 
-// Update event (Only event creator or admin)
-router.put('/:id', [auth, upload.array('images', 5)], async (req, res) => {
+// Update event (Admin only)
+router.put('/:id', [auth, admin, upload.array('images', 5)], async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
-    }
-    
-    // Check if user is the event creator or admin
-    if (event.organizer.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied. You can only edit your own events.' });
     }
     
     const eventData = req.body;
@@ -256,18 +224,13 @@ router.put('/:id', [auth, upload.array('images', 5)], async (req, res) => {
   }
 });
 
-// Delete event (Only event creator or admin)
-router.delete('/:id', auth, async (req, res) => {
+// Delete event (Admin only)
+router.delete('/:id', [auth, admin], async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
-    }
-    
-    // Check if user is the event creator or admin
-    if (event.organizer.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied. You can only delete your own events.' });
     }
     
     await Event.findByIdAndDelete(req.params.id);

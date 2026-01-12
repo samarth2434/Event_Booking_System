@@ -106,6 +106,7 @@ const Navbar = () => {
               <div style={{ color: 'white' }}>Loading...</div>
             ) : isAuthenticated ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+              {user?.role === 'admin' && (
                 <Link 
                   to="/create-event" 
                   style={{
@@ -134,6 +135,7 @@ const Navbar = () => {
                   <Plus size={16} />
                   Add Event
                 </Link>
+              )}
                 
                 <Link 
                   to="/bookings" 
@@ -353,25 +355,27 @@ const Navbar = () => {
                 <div style={{ color: 'white', padding: '12px 16px' }}>Loading...</div>
               ) : isAuthenticated ? (
                 <>
-                  <Link 
-                    to="/create-event" 
-                    onClick={() => setIsMenuOpen(false)}
-                    style={{
-                      color: 'white',
-                      textDecoration: 'none',
-                      fontWeight: '600',
-                      padding: '12px 16px',
-                      borderRadius: '8px',
-                      background: 'rgba(34, 197, 94, 0.2)',
-                      border: '1px solid rgba(34, 197, 94, 0.3)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px'
-                    }}
-                  >
-                    <Plus size={16} />
-                    Add Event
-                  </Link>
+                  {user?.role === 'admin' && (
+                    <Link 
+                      to="/create-event" 
+                      onClick={() => setIsMenuOpen(false)}
+                      style={{
+                        color: 'white',
+                        textDecoration: 'none',
+                        fontWeight: '600',
+                        padding: '12px 16px',
+                        borderRadius: '8px',
+                        background: 'rgba(34, 197, 94, 0.2)',
+                        border: '1px solid rgba(34, 197, 94, 0.3)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      <Plus size={16} />
+                      Add Event
+                    </Link>
+                  )}
                   
                   <Link 
                     to="/bookings" 

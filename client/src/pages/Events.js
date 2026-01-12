@@ -7,8 +7,6 @@ import { useAuth } from '../contexts/AuthContext';
 const Events = () => {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
-  const [myEvents, setMyEvents] = useState([]);
-  const [showMyEvents, setShowMyEvents] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState({
@@ -61,41 +59,15 @@ const Events = () => {
   }, [filters]);
 
   const fetchMyEvents = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/api/events/my-events', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setMyEvents(response.data.events);
-    } catch (error) {
-      console.error('Error fetching my events:', error);
-    }
+    // Removed - only admins can create events now
   };
 
   const handleDeleteEvent = async (eventId) => {
-    if (window.confirm('Are you sure you want to delete this event?')) {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`/api/events/${eventId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        // Refresh both lists
-        fetchMyEvents();
-        fetchEvents();
-        alert('Event deleted successfully!');
-      } catch (error) {
-        console.error('Error deleting event:', error);
-        alert('Error deleting event. Please try again.');
-      }
-    }
+    // Removed - only admins can delete events now
   };
 
   useEffect(() => {
     fetchEvents();
-    if (user) {
-      fetchMyEvents();
-    }
   }, [searchParams, user, fetchEvents]);
 
   const handleFilterChange = (key, value) => {
@@ -285,23 +257,10 @@ const Events = () => {
             <p style={{ color: '#718096' }}>
               {loading ? 'Loading...' : `Showing ${events.length} of ${pagination.total} events`}
             </p>
-            
-            {user && (
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  onClick={() => setShowMyEvents(!showMyEvents)}
-                  className={`btn ${showMyEvents ? 'btn-primary' : 'btn-secondary'}`}
-                  style={{ fontSize: '14px' }}
-                >
-                  <User size={16} />
-                  {showMyEvents ? 'All Events' : 'My Events'} ({myEvents.length})
-                </button>
-              </div>
-            )}
           </div>
           
-          {user && (
-            <Link to="/create-event" className="btn btn-primary">
+          {user?.role === 'admin' && (
+            <Link to="/admin/events/create" className="btn btn-primary">
               <Plus size={18} />
               Add New Event
             </Link>
@@ -323,10 +282,10 @@ const Events = () => {
               borderTop: '4px solid #667eea'
             }}></div>
           </div>
-        ) : (showMyEvents ? myEvents : events).length > 0 ? (
+        ) : events.length > 0 ? (
           <>
             <div className="grid grid-cols-3" style={{ gap: '24px', marginBottom: '40px' }}>
-              {(showMyEvents ? myEvents : events).map((event) => (
+              {events.map((event) => (
                 <div key={event._id} className="card" style={{
                   opacity: isEventPast(event.date) ? 0.7 : 1
                 }}>
@@ -354,21 +313,6 @@ const Events = () => {
                       </div>
                     )}
                     
-                    {showMyEvents && user && event.organizer._id === user.id && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '12px',
-                        left: '12px',
-                        background: 'rgba(0, 0, 0, 0.7)',
-                        color: 'white',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        fontWeight: '500'
-                      }}>
-                        Your Event
-                      </div>
-                    )}
                   </div>
                   
                   <div className="card-body">
@@ -470,21 +414,6 @@ const Events = () => {
                         >
                           {isEventPast(event.date) ? 'Event Ended' : 'View Details'}
                         </Link>
-                        
-                        {showMyEvents && user && event.organizer._id === user.id && (
-                          <button
-                            onClick={() => handleDeleteEvent(event._id)}
-                            className="btn btn-danger"
-                            style={{ 
-                              padding: '8px 12px', 
-                              fontSize: '14px',
-                              background: '#e53e3e',
-                              borderColor: '#e53e3e'
-                            }}
-                          >
-                            Delete
-                          </button>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -492,8 +421,8 @@ const Events = () => {
               ))}
             </div>
 
-            {/* Pagination - only show for all events, not my events */}
-            {!showMyEvents && pagination.totalPages > 1 && (
+            {/* Pagination */}
+            {pagination.totalPages > 1 && (
               <div style={{
                 display: 'flex',
                 justifyContent: 'center',
@@ -539,30 +468,20 @@ const Events = () => {
           }}>
             <Calendar size={64} style={{ margin: '0 auto 24px', opacity: 0.5 }} />
             <h3 style={{ marginBottom: '8px', fontSize: '1.5rem' }}>
-              {showMyEvents ? 'No Events Created Yet' : 'No Events Found'}
+              No Events Found
             </h3>
             <p style={{ marginBottom: '24px' }}>
-              {showMyEvents 
-                ? 'You haven\'t created any events yet. Click "Add New Event" to get started!'
-                : 'Try adjusting your search criteria or check back later for new events.'
-              }
+              Try adjusting your search criteria or check back later for new events.
             </p>
-            {showMyEvents ? (
-              <Link to="/create-event" className="btn btn-primary">
-                <Plus size={18} />
-                Create Your First Event
-              </Link>
-            ) : (
-              <button
-                onClick={() => {
-                  setFilters({ search: '', category: '', city: '', date: '' });
-                  setSearchParams({});
-                }}
-                className="btn btn-primary"
-              >
-                Clear Filters
-              </button>
-            )}
+            <button
+              onClick={() => {
+                setFilters({ search: '', category: '', city: '', date: '' });
+                setSearchParams({});
+              }}
+              className="btn btn-primary"
+            >
+              Clear Filters
+            </button>
           </div>
         )}
       </div>

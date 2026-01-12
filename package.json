@@ -11,6 +11,7 @@
     "build": "cd client && npm run build",
     "install-client": "cd client && npm install",
     "seed": "node scripts/seedData.js",
+    "create-admin": "node scripts/createAdmin.js",
     "setup": "node setup.js"
   },
   "dependencies": {

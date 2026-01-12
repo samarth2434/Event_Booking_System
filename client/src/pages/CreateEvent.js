@@ -45,9 +45,9 @@ const CreateEvent = () => {
     { value: 'other', label: 'Other' }
   ];
 
-  // Redirect if not logged in
-  if (!user) {
-    navigate('/login');
+  // Redirect if not admin
+  if (!user || user.role !== 'admin') {
+    navigate('/');
     return null;
   }
 

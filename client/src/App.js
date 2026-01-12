@@ -38,12 +38,14 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               
-              {/* Protected Routes */}
+              {/* Admin-Only Routes */}
               <Route path="/create-event" element={
-                <ProtectedRoute>
+                <AdminRoute>
                   <CreateEvent />
-                </ProtectedRoute>
+                </AdminRoute>
               } />
+              
+              {/* Protected Routes */}
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />
