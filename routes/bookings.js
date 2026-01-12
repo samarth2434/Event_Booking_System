@@ -3,6 +3,7 @@ const Booking = require('../models/Booking');
 const Event = require('../models/Event');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { sendBookingConfirmationEmail } = require('../utils/emailService');
 
 const router = express.Router();
 
@@ -124,6 +125,16 @@ router.post('/', auth, async (req, res) => {
     await booking.save();
     
     console.log('Booking saved with reference:', booking.bookingReference);
+    
+    // Send booking confirmation email
+    try {
+      const user = await User.findById(req.user.id);
+      await sendBookingConfirmationEmail(booking, event, user);
+      console.log('Booking confirmation email sent to:', user.email);
+    } catch (emailError) {
+      console.error('Failed to send booking confirmation email:', emailError);
+      // Don't fail booking if email fails
+    }
     
     // Update event ticket availability
     Object.keys(bookingTickets).forEach(type => {

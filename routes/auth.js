@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { sendWelcomeEmail } = require('../utils/emailService');
 
 const router = express.Router();
 
@@ -41,6 +42,15 @@ router.post('/register', [
 
     await user.save();
     console.log('New user created successfully:', { id: user.id, email: user.email, name: user.name });
+
+    // Send welcome email
+    try {
+      await sendWelcomeEmail(user.email, user.name);
+      console.log('Welcome email sent to:', user.email);
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+      // Don't fail registration if email fails
+    }
 
     // Create JWT token
     const payload = {

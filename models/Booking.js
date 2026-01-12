@@ -36,10 +36,13 @@ const bookingSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['stripe', 'paypal', 'cash'],
-    default: 'stripe'
+    enum: ['paypal', 'cash'],
+    default: 'paypal'
   },
-  stripePaymentIntentId: {
+  paypalOrderId: {
+    type: String
+  },
+  paypalPaymentId: {
     type: String
   },
   bookingReference: {

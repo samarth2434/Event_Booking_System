@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const { testEmailConnection } = require('./utils/emailService');
 require('dotenv').config();
 
 const app = express();
@@ -26,7 +27,11 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/eventbook
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('MongoDB Connected'))
+.then(() => {
+  console.log('MongoDB Connected');
+  // Test email connection
+  testEmailConnection();
+})
 .catch(err => console.log(err));
 
 // Serve static assets in production

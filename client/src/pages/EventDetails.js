@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Calendar, MapPin, Clock, Users, Ticket, ArrowLeft, Plus, Minus, X } from 'lucide-react';
+import PayPalPayment from '../components/PayPalPayment';
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -13,6 +14,8 @@ const EventDetails = () => {
   const [loading, setLoading] = useState(true);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [currentBooking, setCurrentBooking] = useState(null);
+  const [showPayment, setShowPayment] = useState(false);
   const [selectedTickets, setSelectedTickets] = useState({
     general: 0,
     vip: 0,
@@ -100,15 +103,27 @@ const EventDetails = () => {
         headers: { 'x-auth-token': token }
       });
 
-      toast.success('Booking created successfully!');
-      setShowBookingModal(false);
-      navigate(`/bookings/${response.data._id}`);
+      setCurrentBooking(response.data);
+      setShowPayment(true);
+      toast.success('Booking created! Please complete payment.');
     } catch (error) {
       console.error('Booking error:', error);
       toast.error(error.response?.data?.message || 'Error creating booking');
     } finally {
       setBookingLoading(false);
     }
+  };
+
+  const handlePaymentSuccess = (paymentData) => {
+    toast.success('Payment completed successfully!');
+    setShowBookingModal(false);
+    setShowPayment(false);
+    navigate(`/bookings/${currentBooking._id}`);
+  };
+
+  const handlePaymentError = (error) => {
+    console.error('Payment error:', error);
+    toast.error('Payment failed. Please try again.');
   };
 
   const openBookingModal = () => {
@@ -594,41 +609,82 @@ const EventDetails = () => {
                 )}
 
                 {/* Action Buttons */}
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <button
-                    type="button"
-                    onClick={() => setShowBookingModal(false)}
-                    className="btn btn-secondary"
-                    style={{ flex: 1 }}
-                  >
-                    Cancel
-                  </button>
-                  
-                  <button
-                    type="submit"
-                    disabled={bookingLoading || getTotalTickets() === 0}
-                    className="btn btn-primary"
-                    style={{ flex: 2 }}
-                  >
-                    {bookingLoading ? (
-                      <>
-                        <div className="spinner" style={{
-                          width: '16px',
-                          height: '16px',
-                          border: '2px solid transparent',
-                          borderTop: '2px solid white',
-                          marginRight: '8px'
-                        }}></div>
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <Ticket size={18} />
-                        Confirm Booking (${getTotalAmount().toFixed(2)})
-                      </>
-                    )}
-                  </button>
-                </div>
+                {!showPayment ? (
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowBookingModal(false)}
+                      className="btn btn-secondary"
+                      style={{ flex: 1 }}
+                    >
+                      Cancel
+                    </button>
+                    
+                    <button
+                      type="submit"
+                      disabled={bookingLoading || getTotalTickets() === 0}
+                      className="btn btn-primary"
+                      style={{ flex: 2 }}
+                    >
+                      {bookingLoading ? (
+                        <>
+                          <div className="spinner" style={{
+                            width: '16px',
+                            height: '16px',
+                            border: '2px solid transparent',
+                            borderTop: '2px solid white',
+                            marginRight: '8px'
+                          }}></div>
+                          Creating Booking...
+                        </>
+                      ) : (
+                        <>
+                          <Ticket size={18} />
+                          Create Booking (${getTotalAmount().toFixed(2)})
+                        </>
+                      )}
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{
+                      background: '#f0f9ff',
+                      border: '1px solid #0ea5e9',
+                      borderRadius: '8px',
+                      padding: '16px',
+                      marginBottom: '20px'
+                    }}>
+                      <h4 style={{ margin: '0 0 8px 0', color: '#0369a1' }}>
+                        Booking Created Successfully!
+                      </h4>
+                      <p style={{ margin: 0, color: '#0369a1' }}>
+                        Reference: {currentBooking?.bookingReference}
+                      </p>
+                      <p style={{ margin: '8px 0 0 0', color: '#0369a1' }}>
+                        Please complete your payment below:
+                      </p>
+                    </div>
+
+                    <PayPalPayment
+                      booking={currentBooking}
+                      onSuccess={handlePaymentSuccess}
+                      onError={handlePaymentError}
+                    />
+
+                    <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowBookingModal(false);
+                          setShowPayment(false);
+                        }}
+                        className="btn btn-secondary"
+                      >
+                        Cancel Payment
+                      </button>
+                    </div>
+                  </div>
+                )}
               </form>
             </div>
           </div>
