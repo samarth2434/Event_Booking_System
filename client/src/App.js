@@ -14,6 +14,11 @@ import Register from './pages/Auth/Register';
 import Profile from './pages/Profile';
 import Bookings from './pages/Bookings';
 import BookingDetails from './pages/BookingDetails';
+import Support from './pages/Support';
+import HelpCenter from './pages/HelpCenter';
+import ContactUs from './pages/ContactUs';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 import AdminDashboard from './pages/Admin/Dashboard';
 import AdminEvents from './pages/Admin/Events';
 import AdminBookings from './pages/Admin/Bookings';
@@ -37,6 +42,13 @@ function App() {
               <Route path="/events/:id" element={<EventDetails />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              
+              {/* Industry-Level Pages */}
+              <Route path="/support" element={<Support />} />
+              <Route path="/help-center" element={<HelpCenter />} />
+              <Route path="/contact" element={<ContactUs />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
               
               {/* Admin-Only Routes */}
               <Route path="/create-event" element={

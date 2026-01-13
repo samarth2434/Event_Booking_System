@@ -213,72 +213,7 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Demo Credentials & New User Info */}
-          <div className="card" style={{ 
-            marginTop: '32px',
-            background: 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)'
-          }}>
-            <div className="card-body" style={{ padding: '24px' }}>
-              <h3 style={{
-                fontSize: '1rem',
-                fontWeight: '700',
-                marginBottom: '16px',
-                color: '#2d3748',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <div style={{
-                  width: '24px',
-                  height: '24px',
-                  background: 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{ color: 'white', fontSize: '12px', fontWeight: 'bold' }}>✓</span>
-                </div>
-                Quick Access
-              </h3>
-              
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{
-                  padding: '12px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  borderRadius: '8px',
-                  color: 'white',
-                  textAlign: 'center',
-                  marginBottom: '12px'
-                }}>
-                  <strong>New User?</strong> Click "Create Account" above to register instantly!
-                </div>
-              </div>
-              
-              <div style={{ fontSize: '14px', color: '#718096' }}>
-                <p style={{ marginBottom: '12px', fontWeight: '500' }}>Or try demo accounts:</p>
-                <div style={{ 
-                  marginBottom: '12px',
-                  padding: '12px',
-                  background: 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)',
-                  borderRadius: '8px',
-                  color: '#2d3748'
-                }}>
-                  <strong>Admin:</strong> admin@eventhub.com / admin123
-                </div>
-                <div style={{ 
-                  padding: '12px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  borderRadius: '8px',
-                  color: 'white'
-                }}>
-                  <strong>User:</strong> user@eventhub.com / user123
-                </div>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>

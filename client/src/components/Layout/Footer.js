@@ -122,8 +122,8 @@ const Footer = () => {
               Support
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <a 
-                href="#" 
+              <Link 
+                to="/help-center" 
                 style={{
                   color: '#cbd5e0',
                   textDecoration: 'none',
@@ -133,9 +133,21 @@ const Footer = () => {
                 onMouseLeave={(e) => e.target.style.color = '#cbd5e0'}
               >
                 Help Center
-              </a>
-              <a 
-                href="#" 
+              </Link>
+              <Link 
+                to="/support" 
+                style={{
+                  color: '#cbd5e0',
+                  textDecoration: 'none',
+                  transition: 'color 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.target.style.color = 'white'}
+                onMouseLeave={(e) => e.target.style.color = '#cbd5e0'}
+              >
+                Support
+              </Link>
+              <Link 
+                to="/contact" 
                 style={{
                   color: '#cbd5e0',
                   textDecoration: 'none',
@@ -145,9 +157,9 @@ const Footer = () => {
                 onMouseLeave={(e) => e.target.style.color = '#cbd5e0'}
               >
                 Contact Us
-              </a>
-              <a 
-                href="#" 
+              </Link>
+              <Link 
+                to="/privacy-policy" 
                 style={{
                   color: '#cbd5e0',
                   textDecoration: 'none',
@@ -157,9 +169,9 @@ const Footer = () => {
                 onMouseLeave={(e) => e.target.style.color = '#cbd5e0'}
               >
                 Privacy Policy
-              </a>
-              <a 
-                href="#" 
+              </Link>
+              <Link 
+                to="/terms-of-service" 
                 style={{
                   color: '#cbd5e0',
                   textDecoration: 'none',
@@ -169,7 +181,7 @@ const Footer = () => {
                 onMouseLeave={(e) => e.target.style.color = '#cbd5e0'}
               >
                 Terms of Service
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -239,8 +251,8 @@ const Footer = () => {
             © 2024 EventHub. All rights reserved.
           </p>
           <div style={{ display: 'flex', gap: '24px' }}>
-            <a 
-              href="#" 
+            <Link 
+              to="/contact" 
               style={{
                 color: '#cbd5e0',
                 textDecoration: 'none',
@@ -251,9 +263,9 @@ const Footer = () => {
               onMouseLeave={(e) => e.target.style.color = '#cbd5e0'}
             >
               Facebook
-            </a>
-            <a 
-              href="#" 
+            </Link>
+            <Link 
+              to="/contact" 
               style={{
                 color: '#cbd5e0',
                 textDecoration: 'none',
@@ -264,9 +276,9 @@ const Footer = () => {
               onMouseLeave={(e) => e.target.style.color = '#cbd5e0'}
             >
               Twitter
-            </a>
-            <a 
-              href="#" 
+            </Link>
+            <Link 
+              to="/contact" 
               style={{
                 color: '#cbd5e0',
                 textDecoration: 'none',
@@ -277,7 +289,7 @@ const Footer = () => {
               onMouseLeave={(e) => e.target.style.color = '#cbd5e0'}
             >
               Instagram
-            </a>
+            </Link>
           </div>
         </div>
       </div>
