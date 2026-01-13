@@ -1,67 +1,73 @@
-# EventHub - Event Booking System
+# EventHub - Professional Event Booking System
 
-A complete MERN stack event booking system with features like event management, secure payment processing, booking management, and admin dashboard.
+A complete MERN stack event booking system with advanced features including role-based admin controls, secure PayPal payments, MongoDB Atlas integration, email notifications, and comprehensive event management.
 
 ## 🚀 Features
 
 ### User Features
-- **User Authentication**: Secure registration and login system
-- **Event Discovery**: Browse events by category, location, and date
-- **Event Details**: Comprehensive event information with venue details
-- **Ticket Booking**: Multiple ticket types (General, VIP, Premium)
-- **Secure Payments**: Stripe integration for secure payment processing
-- **Booking Management**: View and manage personal bookings
-- **QR Code Tickets**: Digital tickets with QR codes for entry
-- **Email Notifications**: Booking confirmations and event reminders
-- **Responsive Design**: Mobile-friendly interface
+- **User Authentication**: Secure JWT-based registration and login system
+- **Event Discovery**: Browse events by category, location, date with advanced filtering
+- **Event Details**: Comprehensive event information with venue details and pricing
+- **Ticket Booking**: Multiple ticket types (General, VIP, Premium) with real-time availability
+- **PayPal Integration**: Secure payment processing with PayPal checkout
+- **Booking Management**: View and manage personal bookings with QR codes
+- **Email Notifications**: Automated booking confirmations and welcome emails
+- **Responsive Design**: Mobile-first responsive interface
+- **Profile Management**: User profile with booking history
 
-### Admin Features
-- **Admin Dashboard**: Overview of events, bookings, users, and revenue
-- **Event Management**: Create, edit, and manage events
-- **Booking Management**: View and manage all bookings
+### Admin Features (Role-Based Access Control)
+- **Secure Admin Dashboard**: Complete system overview with analytics
+- **Event Management**: Create, edit, delete, and manage all events
+- **Booking Management**: View and manage all user bookings
 - **User Management**: View registered users and their activity
-- **Revenue Analytics**: Track earnings and popular events
+- **Revenue Analytics**: Track earnings, popular events, and booking statistics
 - **Status Management**: Update event and booking statuses
+- **Admin-Only Access**: Secure role-based permissions system
 
 ### Technical Features
-- **Real-time Availability**: Live ticket availability updates
-- **Automated Reminders**: Email reminders sent 24 hours before events
-- **Booking Expiration**: Automatic cleanup of unpaid bookings
-- **Calendar Integration**: Event scheduling and date management
-- **Search & Filtering**: Advanced search and filtering capabilities
-- **Pagination**: Efficient data loading with pagination
+- **MongoDB Atlas**: Cloud database with automatic scaling
+- **Real-time Updates**: Live ticket availability and booking updates
+- **Automated Email System**: Gmail integration with HTML email templates
+- **Security Implementation**: Role-based access control with admin middleware
+- **PayPal Sandbox**: Complete payment testing environment
+- **Search & Filtering**: Advanced search with pagination
+- **File Upload**: Event image management with Multer
+- **Error Handling**: Comprehensive error handling and validation
 
 ## 🛠️ Tech Stack
 
 ### Backend
 - **Node.js** - Runtime environment
 - **Express.js** - Web framework
-- **MongoDB** - Database
+- **MongoDB Atlas** - Cloud database
 - **Mongoose** - ODM for MongoDB
-- **JWT** - Authentication
-- **Stripe** - Payment processing
-- **Nodemailer** - Email service
-- **Multer** - File uploads
+- **JWT** - Authentication with role-based access
+- **PayPal SDK** - Payment processing
+- **Nodemailer** - Gmail email service
+- **Multer** - File upload handling
 - **Node-cron** - Scheduled tasks
+- **Bcryptjs** - Password hashing
+- **Express-validator** - Input validation
 
 ### Frontend
-- **React** - UI library
-- **React Router** - Navigation
-- **Axios** - HTTP client
-- **React Toastify** - Notifications
-- **Lucide React** - Icons
-- **QR Code** - QR code generation
-- **Date-fns** - Date utilities
+- **React 18** - Modern UI library
+- **React Router v6** - Client-side routing
+- **Axios** - HTTP client with interceptors
+- **PayPal React SDK** - PayPal payment components
+- **React Toastify** - Toast notifications
+- **Lucide React** - Modern icon library
+- **Context API** - State management
+- **Responsive CSS** - Mobile-first design
 
-## 📦 Installation
+## 📦 Installation & Setup
 
 ### Prerequisites
-- Node.js (v14 or higher)
-- MongoDB (local or cloud)
-- Stripe account for payments
-- Gmail account for email service
+- **Node.js** (v16 or higher)
+- **MongoDB Atlas** account (cloud database)
+- **PayPal Developer** account
+- **Gmail** account with App Password
 
-### Backend Setup
+### Quick Start
 
 1. **Clone the repository**
    ```bash
@@ -69,209 +75,290 @@ A complete MERN stack event booking system with features like event management, 
    cd event-booking-system
    ```
 
-2. **Install backend dependencies**
+2. **Install dependencies**
    ```bash
    npm install
+   cd client && npm install && cd ..
    ```
 
 3. **Environment Configuration**
-   Create a `.env` file in the root directory:
+   Create a `.env` file in the root directory with the following configuration:
+
    ```env
+   # Environment Configuration
    NODE_ENV=development
    PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/eventbooking
-   JWT_SECRET=your_jwt_secret_key_here
-   STRIPE_SECRET_KEY=your_stripe_secret_key_here
-   STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key_here
+
+   # Database (MongoDB Atlas)
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/eventbooking?appName=EventHub
+
+   # JWT Secret (Generate a secure key)
+   JWT_SECRET=your_secure_jwt_secret_key_here
+
+   # PayPal Configuration
+   PAYPAL_CLIENT_ID=your_paypal_sandbox_client_id
+   PAYPAL_CLIENT_SECRET=your_paypal_sandbox_client_secret
+   PAYPAL_MODE=sandbox
+
+   # Email Configuration (Gmail)
    EMAIL_USER=your_email@gmail.com
-   EMAIL_PASS=your_email_password
+   EMAIL_PASS=your_gmail_app_password
+   EMAIL_FROM=EventHub <your_email@gmail.com>
+   EMAIL_SERVICE=gmail
+   EMAIL_HOST=smtp.gmail.com
+   EMAIL_PORT=587
+
+   # Frontend URL
    CLIENT_URL=http://localhost:3000
    ```
 
-4. **Start MongoDB**
-   Make sure MongoDB is running on your system.
-
-5. **Start the backend server**
+4. **Create Admin User**
    ```bash
-   npm run server
+   npm run create-admin
    ```
 
-### Frontend Setup
-
-1. **Navigate to client directory**
+5. **Start the application**
    ```bash
-   cd client
+   npm run dev
    ```
 
-2. **Install frontend dependencies**
-   ```bash
-   npm install
-   ```
+   This will start both backend (port 5000) and frontend (port 3000) servers.
 
-3. **Start the frontend development server**
-   ```bash
-   npm start
-   ```
+## 🔧 Detailed Configuration
 
-### Full Application Setup
+### MongoDB Atlas Setup
+1. Create account at [MongoDB Atlas](https://www.mongodb.com/atlas)
+2. Create a new cluster
+3. Create database user with read/write permissions
+4. Get connection string and update `MONGODB_URI`
+5. Whitelist your IP address
 
-To run both backend and frontend simultaneously:
+### PayPal Integration Setup
+1. Create account at [PayPal Developer](https://developer.paypal.com/)
+2. Create a new sandbox application
+3. Get Client ID and Client Secret
+4. Update PayPal credentials in `.env`
+5. Use sandbox accounts for testing
+
+### Gmail Email Service Setup
+1. Enable 2-Factor Authentication on Gmail
+2. Generate App Password (not regular password)
+3. Update email credentials in `.env`
+4. Test email functionality
+
+### JWT Secret Generation
+Generate a secure JWT secret:
 ```bash
-npm run dev
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
-## 🔧 Configuration
+## 🔐 Security Features
 
-### MongoDB Setup
-1. Install MongoDB locally or use MongoDB Atlas
-2. Update the `MONGODB_URI` in your `.env` file
-3. The application will automatically create the necessary collections
+### Role-Based Access Control
+- **Admin Role**: Full system access (create/edit/delete events)
+- **User Role**: Limited access (view events, book tickets)
+- **Route Protection**: Frontend and backend route guards
+- **Middleware Security**: Admin middleware on protected routes
 
-### Stripe Setup
-1. Create a Stripe account at https://stripe.com
-2. Get your API keys from the Stripe dashboard
-3. Add the keys to your `.env` file
-4. For webhooks, use Stripe CLI or configure webhook endpoints
+### Authentication & Authorization
+- **JWT Tokens**: Secure token-based authentication
+- **Password Hashing**: Bcrypt with salt rounds
+- **Input Validation**: Server-side validation for all inputs
+- **CORS Protection**: Configured cross-origin resource sharing
+- **Admin Verification**: Multi-layer admin access verification
 
-### Email Setup
-1. Use a Gmail account or configure SMTP settings
-2. For Gmail, you may need to use App Passwords
-3. Update email credentials in the `.env` file
+## 📱 Usage Guide
 
-## 📱 Usage
-
-### For Users
-1. **Register/Login**: Create an account or sign in
-2. **Browse Events**: Explore available events
-3. **Book Tickets**: Select events and book tickets
-4. **Make Payment**: Secure payment via Stripe
-5. **Receive Confirmation**: Get booking confirmation with QR code
-6. **Attend Event**: Present QR code at venue
-
-### For Admins
-1. **Login as Admin**: Use admin credentials
-2. **Access Dashboard**: View system overview
-3. **Manage Events**: Create and manage events
-4. **Monitor Bookings**: Track all bookings
-5. **Manage Users**: View user activity
-
-### Demo Credentials
+### Admin Access
 ```
-Admin Login:
 Email: admin@eventhub.com
-Password: admin123
-
-User Login:
-Email: user@eventhub.com
-Password: user123
+Password: admin123456
+Role: admin
 ```
+
+**Admin Capabilities:**
+- Access admin dashboard at `/admin`
+- Create and manage events
+- View all bookings and users
+- Monitor system analytics
+- Manage event statuses
+
+### User Registration & Booking
+1. **Register**: Create new user account
+2. **Browse Events**: View available events with filters
+3. **Book Tickets**: Select tickets and proceed to checkout
+4. **PayPal Payment**: Complete secure payment via PayPal
+5. **Confirmation**: Receive booking confirmation email
+6. **Manage Bookings**: View booking history and details
 
 ## 🏗️ Project Structure
 
 ```
 event-booking-system/
-├── client/                 # React frontend
+├── client/                          # React Frontend
 │   ├── public/
 │   ├── src/
-│   │   ├── components/     # Reusable components
-│   │   ├── contexts/       # React contexts
-│   │   ├── pages/          # Page components
-│   │   └── ...
-├── models/                 # MongoDB models
-├── routes/                 # Express routes
-├── middleware/             # Custom middleware
-├── utils/                  # Utility functions
-├── uploads/                # File uploads directory
-├── server.js              # Main server file
-└── package.json
+│   │   ├── components/
+│   │   │   ├── Auth/               # Authentication components
+│   │   │   ├── Layout/             # Layout components
+│   │   │   └── PayPalPayment.js    # PayPal integration
+│   │   ├── contexts/
+│   │   │   └── AuthContext.js      # Authentication context
+│   │   ├── pages/
+│   │   │   ├── Admin/              # Admin-only pages
+│   │   │   ├── Auth/               # Login/Register pages
+│   │   │   └── ...                 # Other pages
+│   │   └── App.js                  # Main app component
+├── models/                          # MongoDB Models
+│   ├── User.js                     # User model with roles
+│   ├── Event.js                    # Event model
+│   └── Booking.js                  # Booking model
+├── routes/                          # Express Routes
+│   ├── auth.js                     # Authentication routes
+│   ├── events.js                   # Event management routes
+│   ├── bookings.js                 # Booking routes
+│   ├── payments.js                 # PayPal payment routes
+│   └── admin.js                    # Admin-only routes
+├── middleware/
+│   ├── auth.js                     # Authentication middleware
+│   └── admin.js                    # Admin role middleware
+├── utils/
+│   ├── emailService.js             # Email service utilities
+│   └── scheduler.js                # Scheduled tasks
+├── scripts/
+│   ├── createAdmin.js              # Admin user creation
+│   ├── checkAtlasConnection.js     # Database connection test
+│   └── testAdminLogin.js           # Admin login verification
+├── uploads/                         # File upload directory
+├── server.js                       # Main server file
+├── .env                            # Environment variables
+└── package.json                    # Dependencies and scripts
 ```
-
-## 🔐 Security Features
-
-- **JWT Authentication**: Secure token-based authentication
-- **Password Hashing**: Bcrypt for password security
-- **Input Validation**: Server-side validation for all inputs
-- **CORS Protection**: Cross-origin resource sharing configuration
-- **Rate Limiting**: Protection against abuse
-- **Secure Headers**: Security headers for production
 
 ## 📊 API Endpoints
 
 ### Authentication
 - `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/me` - Get current user
+- `POST /api/auth/login` - User login  
+- `GET /api/auth/me` - Get current user profile
 
-### Events
-- `GET /api/events` - Get all events
+### Events (Admin Protected)
+- `GET /api/events` - Get all events (public)
+- `GET /api/events/featured` - Get featured events
 - `GET /api/events/:id` - Get single event
-- `POST /api/events` - Create event (Admin)
-- `PUT /api/events/:id` - Update event (Admin)
-- `DELETE /api/events/:id` - Delete event (Admin)
+- `POST /api/events` - Create event (Admin only)
+- `PUT /api/events/:id` - Update event (Admin only)
+- `DELETE /api/events/:id` - Delete event (Admin only)
 
 ### Bookings
-- `GET /api/bookings/my-bookings` - Get user bookings
+- `GET /api/bookings` - Get user bookings
 - `POST /api/bookings` - Create booking
 - `GET /api/bookings/:id` - Get booking details
 
-### Payments
-- `POST /api/payments/create-payment-intent` - Create payment
-- `POST /api/payments/confirm-payment` - Confirm payment
+### PayPal Payments
+- `POST /api/payments/create-paypal-order` - Create PayPal order
+- `POST /api/payments/capture-paypal-payment` - Capture payment
+- `GET /api/payments/paypal-client-id` - Get PayPal client ID
 
-### Admin
-- `GET /api/admin/dashboard` - Dashboard stats
-- `GET /api/admin/events` - Manage events
-- `GET /api/admin/bookings` - Manage bookings
-- `GET /api/admin/users` - Manage users
+### Admin Dashboard
+- `GET /api/admin/dashboard` - Dashboard statistics
+- `GET /api/admin/events` - Manage all events
+- `GET /api/admin/bookings` - Manage all bookings
+- `GET /api/admin/users` - Manage all users
 
 ## 🚀 Deployment
 
-### Backend Deployment (Heroku)
-1. Create a Heroku app
-2. Set environment variables
-3. Deploy using Git or GitHub integration
+### Environment Variables for Production
+```env
+NODE_ENV=production
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/eventbooking
+JWT_SECRET=your_production_jwt_secret
+PAYPAL_CLIENT_ID=your_live_paypal_client_id
+PAYPAL_CLIENT_SECRET=your_live_paypal_client_secret
+PAYPAL_MODE=live
+EMAIL_USER=your_production_email@gmail.com
+EMAIL_PASS=your_production_app_password
+CLIENT_URL=https://your-domain.com
+```
 
-### Frontend Deployment (Netlify/Vercel)
-1. Build the React app: `npm run build`
-2. Deploy the build folder
-3. Configure environment variables
+### Deployment Steps
+1. **Backend**: Deploy to Heroku, Railway, or similar
+2. **Frontend**: Deploy to Netlify, Vercel, or similar
+3. **Database**: MongoDB Atlas (already cloud-based)
+4. **PayPal**: Switch to live credentials
+5. **Email**: Use production email credentials
 
-### Database (MongoDB Atlas)
-1. Create a MongoDB Atlas cluster
-2. Update connection string in environment variables
-3. Configure network access and database users
+## 🧪 Testing
+
+### Available Scripts
+```bash
+npm run dev          # Start both servers
+npm run server       # Start backend only
+npm run client       # Start frontend only
+npm run create-admin # Create admin user
+npm run seed         # Seed sample data
+```
+
+### Testing Checklist
+- [ ] User registration and login
+- [ ] Admin login and dashboard access
+- [ ] Event creation (admin only)
+- [ ] Event booking flow
+- [ ] PayPal payment processing
+- [ ] Email notifications
+- [ ] Role-based access control
+
+## 📋 Environment Variables Reference
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `MONGODB_URI` | MongoDB Atlas connection string | `mongodb+srv://user:pass@cluster.mongodb.net/eventbooking` |
+| `JWT_SECRET` | Secret key for JWT tokens | `your_secure_random_string` |
+| `PAYPAL_CLIENT_ID` | PayPal application client ID | `AQW_B3JJSFFHl0HG96GCX0COAqO7Ep0J...` |
+| `PAYPAL_CLIENT_SECRET` | PayPal application client secret | `EFQReXHA_hknorA3fdMtcwTd0PRvyGT-...` |
+| `PAYPAL_MODE` | PayPal environment | `sandbox` or `live` |
+| `EMAIL_USER` | Gmail email address | `your_email@gmail.com` |
+| `EMAIL_PASS` | Gmail app password | `abcd efgh ijkl mnop` |
+| `CLIENT_URL` | Frontend application URL | `http://localhost:3000` |
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 🆘 Support & Documentation
+
+- **Security Documentation**: See `SECURITY_IMPLEMENTATION.md`
+- **PayPal Setup Guide**: See `PAYPAL_SETUP.md`
+- **Quick Start Guide**: See `QUICKSTART.md`
 
 For support and questions:
 - Create an issue in the repository
-- Contact: support@eventhub.com
+- Email: gsamarth2004@gmail.com
 
 ## 🔮 Future Enhancements
 
-- **Social Login**: Google, Facebook authentication
-- **Mobile App**: React Native mobile application
-- **Advanced Analytics**: Detailed reporting and analytics
-- **Multi-language Support**: Internationalization
-- **Event Reviews**: User reviews and ratings
-- **Seat Selection**: Interactive seat selection for venues
-- **Recurring Events**: Support for recurring events
-- **Discount Codes**: Promotional codes and discounts
-- **Waitlist**: Waitlist for sold-out events
-- **Live Chat**: Customer support chat
+- [ ] **Social Login**: Google, Facebook authentication
+- [ ] **Mobile App**: React Native mobile application
+- [ ] **Advanced Analytics**: Detailed reporting dashboard
+- [ ] **Multi-language Support**: Internationalization (i18n)
+- [ ] **Event Reviews**: User reviews and ratings system
+- [ ] **Seat Selection**: Interactive venue seat selection
+- [ ] **Recurring Events**: Support for recurring event series
+- [ ] **Discount Codes**: Promotional codes and discounts
+- [ ] **Waitlist Management**: Waitlist for sold-out events
+- [ ] **Live Chat**: Customer support integration
+- [ ] **Push Notifications**: Real-time event updates
+- [ ] **Calendar Integration**: Google Calendar sync
 
 ---
 
-Built with ❤️ using the MERN stack
+**Built with ❤️ using the MERN stack**  
+**Secure • Scalable • Production-Ready**
